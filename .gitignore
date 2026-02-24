@@ -1,0 +1,8 @@
+cd /Users/adittyaraj/Desktop/news-dashboard
+cat > .gitignore << 'EOF'
+venv/
+.env
+__pycache__/
+*.pyc
+.DS_Store
+EOF
