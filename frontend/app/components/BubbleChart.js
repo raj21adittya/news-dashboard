@@ -109,7 +109,7 @@ export default function BubbleChart({ clusters, onSelect, selected, darkMode }) 
                     .text(l)
                     .attr("text-anchor", "middle")
                     .attr("y", -totalHeight / 2 + i * lineHeight + 4)
-                    .attr("fill", "white")
+                    .attr("fill", darkMode ? "white" : "black")
                     .attr("font-size", Math.min(13, d.r / 3.8))
                     .attr("font-weight", "700")
                     .attr("letter-spacing", "0.3px");
@@ -119,12 +119,12 @@ export default function BubbleChart({ clusters, onSelect, selected, darkMode }) 
                 .text(`${d.size} stories`)
                 .attr("text-anchor", "middle")
                 .attr("y", totalHeight / 2 + 14)
-                .attr("fill", "rgba(255,255,255,0.65)")
+                .attr("fill", darkMode ? "rgba(255,255,255,0.65)" : "rgba(0,0,0,0.6)")
                 .attr("font-size", 10)
                 .attr("letter-spacing", "0.5px");
         });
 
-    }, [clusters, selected]);
+    }, [clusters, selected, darkMode]);
 
     return (
         <div className="w-full overflow-hidden">

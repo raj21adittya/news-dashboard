@@ -19,17 +19,36 @@ function isCacheValid() {
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function fetchHeadlines() {
-    const res = await fetch(
-        `https://newsapi.org/v2/top-headlines?language=en&pageSize=100&apiKey=${process.env.NEWSAPI_KEY}`
+    const categories = ["general", "technology", "business", "science", "health", "sports", "entertainment"];
+
+    const requests = categories.map(category =>
+        fetch(`https://newsapi.org/v2/top-headlines?language=en&pageSize=15&category=${category}&apiKey=${process.env.NEWSAPI_KEY}`)
+            .then(r => r.json())
     );
-    const data = await res.json();
-    return data.articles
-        .filter((a) => a.title && a.title !== "[Removed]")
-        .map((a) => ({
-            title: a.title,
-            source: a.source.name,
-            url: a.url,
-        }));
+
+    const results = await Promise.all(requests);
+
+    const seen = new Set();
+    const headlines = [];
+
+    results.forEach(data => {
+        (data.articles || []).forEach(a => {
+            if (
+                a.title &&
+                a.title !== "[Removed]" &&
+                !seen.has(a.title)
+            ) {
+                seen.add(a.title);
+                headlines.push({
+                    title: a.title,
+                    source: a.source.name,
+                    url: a.url,
+                });
+            }
+        });
+    });
+
+    return headlines;
 }
 
 async function clusterWithGemini(headlines) {
@@ -69,7 +88,10 @@ Rules:
         cluster_id: i,
         label: c.label,
         summary: c.summary,
-        headlines: c.indices.map((idx) => headlines[idx]?.title).filter(Boolean),
+        headlines: c.indices.map((idx) => ({
+            title: headlines[idx]?.title,
+            url: headlines[idx]?.url,
+        })).filter(h => h.title),
         size: c.indices.length,
     }));
 }

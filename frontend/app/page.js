@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import BubbleChart from "./components/BubbleChart";
 
 const REFRESH_INTERVAL = 30 * 60 * 1000;
@@ -69,8 +69,8 @@ export default function Home() {
               onClick={() => loadClusters(true)}
               disabled={loading}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${dark
-                  ? "bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
-                  : "bg-black/10 hover:bg-black/20 text-black disabled:opacity-30"
+                ? "bg-white/10 hover:bg-white/20 text-white disabled:opacity-30"
+                : "bg-black/10 hover:bg-black/20 text-black disabled:opacity-30"
                 }`}
             >
               <span className={loading ? "animate-spin" : ""}>↻</span>
@@ -79,8 +79,8 @@ export default function Home() {
             <button
               onClick={() => setDarkMode(!darkMode)}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${dark
-                  ? "bg-white/10 hover:bg-white/20 text-white"
-                  : "bg-black/10 hover:bg-black/20 text-black"
+                ? "bg-white/10 hover:bg-white/20 text-white"
+                : "bg-black/10 hover:bg-black/20 text-black"
                 }`}
             >
               {dark ? "☀️ Light" : "🌙 Dark"}
@@ -131,7 +131,7 @@ export default function Home() {
             {/* Side panel */}
             <div className="lg:w-80 flex flex-col gap-3">
               {selected ? (
-                <>
+                <React.Fragment>
                   {/* Selected cluster detail */}
                   <div className={`rounded-2xl p-5 ${dark ? "bg-white/[0.05] border border-white/10" : "bg-white border border-black/10"}`}>
                     <div className="flex items-start justify-between mb-3">
@@ -152,12 +152,18 @@ export default function Home() {
                     <ul className="space-y-2">
                       {selected.headlines.map((h, i) => (
                         <li key={i} className={`text-xs leading-snug pl-3 border-l-2 border-current ${dark ? "text-white/60 border-white/20" : "text-black/60 border-black/20"}`}>
-                          {h}
+                          <a
+                            href={h.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`hover:underline ${dark ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"}`}>
+                            {h.title}
+                          </a>
                         </li>
                       ))}
                     </ul>
                   </div>
-                </>
+                </React.Fragment>
               ) : (
                 <div className={`rounded-2xl p-5 ${dark ? "bg-white/[0.03] border border-white/10" : "bg-black/[0.03] border border-black/10"}`}>
                   <p className={`text-sm ${dark ? "text-white/30" : "text-black/30"}`}>
@@ -169,8 +175,9 @@ export default function Home() {
               {/* Topic list */}
               {clusters.length > 0 && (
                 <div className={`rounded-2xl p-4 ${dark ? "bg-white/[0.03] border border-white/10" : "bg-black/[0.03] border border-black/10"}`}>
-                  <div className={`text-xs font-semibold uppercase tracking-wider mb-3 ${dark ? "text-white/30" : "text-black/30"}`}>
-                    All Topics
+                  <div className={`text-xs font-semibold uppercase tracking-wider mb-3 flex justify-between ${dark ? "text-white/30" : "text-black/30"}`}>
+                    <span>All Topics</span>
+                    <span>{clusters.reduce((sum, c) => sum + c.size, 0)} articles</span>
                   </div>
                   <ul className="space-y-1.5">
                     {clusters.map((c, i) => (
@@ -178,8 +185,8 @@ export default function Home() {
                         <button
                           onClick={() => setSelected(c)}
                           className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${selected?.cluster_id === c.cluster_id
-                              ? dark ? "bg-white/10 text-white" : "bg-black/10 text-black"
-                              : dark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-black/50 hover:bg-black/5 hover:text-black"
+                            ? dark ? "bg-white/10 text-white" : "bg-black/10 text-black"
+                            : dark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-black/50 hover:bg-black/5 hover:text-black"
                             }`}
                         >
                           <span className="font-medium">{c.label}</span>
@@ -206,6 +213,6 @@ export default function Home() {
           </p>
         </div>
       </footer>
-    </main>
+    </main >
   );
 }
