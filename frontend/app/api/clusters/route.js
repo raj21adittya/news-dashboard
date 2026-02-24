@@ -74,10 +74,12 @@ Rules:
     }));
 }
 
-export async function GET() {
+export async function GET(request) {
     try {
-        // Return cached data if still fresh
-        if (isCacheValid()) {
+        const { searchParams } = new URL(request.url);
+        const force = searchParams.get("force") === "true";
+
+        if (!force && isCacheValid()) {
             console.log("Serving from cache");
             return Response.json({
                 clusters: cache.clusters,
@@ -86,12 +88,10 @@ export async function GET() {
             });
         }
 
-        // Otherwise fetch fresh data
         console.log("Fetching fresh data...");
         const headlines = await fetchHeadlines();
         const clusters = await clusterWithGemini(headlines);
 
-        // Store in cache
         cache.clusters = clusters;
         cache.fetchedAt = Date.now();
 

@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899", "#14b8a6", "#f97316"];
 
-export default function BubbleChart({ clusters, onSelect }) {
+export default function BubbleChart({ clusters, onSelect, darkMode }) {
     const ref = useRef();
 
     useEffect(() => {
@@ -111,7 +111,7 @@ export default function BubbleChart({ clusters, onSelect }) {
 
     return (
         <div className="w-full">
-            <svg ref={ref} className="rounded-xl bg-gray-900 w-full" />
+            <svg ref={ref} className={`rounded-xl w-full ${darkMode ? "" : "bg-gray-100"}`} />
         </div>
     );
 }
