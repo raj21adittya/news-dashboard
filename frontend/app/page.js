@@ -227,7 +227,7 @@ export default function Home() {
       <footer className={`mt-16 px-6 py-6 border-t ${dark ? "border-white/10" : "border-black/10"}`}>
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <p className={`text-xs ${dark ? "text-white/20" : "text-black/20"}`}>
-            NewsLens · For informational purposes only · Data from NewsAPI
+            NewsLens · For informational purposes only · Data from NewsAPI & GNews API
           </p>
           <p className={`text-xs ${dark ? "text-white/20" : "text-black/20"}`}>
             Powered by Gemini AI

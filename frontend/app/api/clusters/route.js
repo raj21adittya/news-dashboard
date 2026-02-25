@@ -19,35 +19,64 @@ function isCacheValid() {
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 async function fetchHeadlines() {
-    const categories = ["general", "technology", "business", "science", "health", "sports", "entertainment"];
-
-    const requests = categories.map(category =>
-        fetch(`https://newsapi.org/v2/top-headlines?language=en&pageSize=15&category=${category}&apiKey=${process.env.NEWSAPI_KEY}`)
-            .then(r => r.json())
-    );
-
-    const results = await Promise.all(requests);
-
     const seen = new Set();
     const headlines = [];
 
-    results.forEach(data => {
-        (data.articles || []).forEach(a => {
-            if (
-                a.title &&
-                a.title !== "[Removed]" &&
-                !seen.has(a.title)
-            ) {
-                seen.add(a.title);
-                headlines.push({
-                    title: a.title,
-                    source: a.source.name,
-                    url: a.url,
-                });
-            }
-        });
-    });
+    // NewsData.io — paginate 5 pages
+    try {
+        let nextPage = null;
+        for (let i = 0; i < 5; i++) {
+            const url = nextPage
+                ? `https://newsdata.io/api/1/latest?apikey=${process.env.NEWSDATA_API_KEY}&language=en&size=10&page=${nextPage}`
+                : `https://newsdata.io/api/1/latest?apikey=${process.env.NEWSDATA_API_KEY}&language=en&size=10`;
 
+            const res = await fetch(url);
+            const data = await res.json();
+
+            if (!data.results || !Array.isArray(data.results)) break;
+
+            data.results
+                .filter(a => a.title && a.link && !seen.has(a.title))
+                .forEach(a => {
+                    seen.add(a.title);
+                    headlines.push({ title: a.title, source: a.source_id || "Unknown", url: a.link });
+                });
+
+            nextPage = data.nextPage || null;
+            if (!nextPage) break;
+        }
+        console.log(`NewsData.io: ${headlines.length} articles fetched`);
+    } catch (err) {
+        console.error("NewsData.io error:", err.message);
+    }
+
+    // GNews — fetch top headlines across 5 topics in parallel
+    try {
+        const topics = ["world", "technology", "business", "science", "health"];
+        const gNewsRequests = topics.map(topic =>
+            fetch(`https://gnews.io/api/v4/top-headlines?topic=${topic}&lang=en&max=10&apikey=${process.env.GNEWS_API_KEY}`)
+                .then(r => r.json())
+                .catch(() => ({ articles: [] }))
+        );
+
+        const gNewsResults = await Promise.all(gNewsRequests);
+        let gNewsCount = 0;
+
+        gNewsResults.forEach(data => {
+            (data.articles || []).forEach(a => {
+                if (a.title && a.url && !seen.has(a.title)) {
+                    seen.add(a.title);
+                    headlines.push({ title: a.title, source: a.source?.name || "Unknown", url: a.url });
+                    gNewsCount++;
+                }
+            });
+        });
+        console.log(`GNews: ${gNewsCount} articles fetched`);
+    } catch (err) {
+        console.error("GNews error:", err.message);
+    }
+
+    console.log(`Total: ${headlines.length} unique headlines fetched`);
     return headlines;
 }
 
@@ -121,6 +150,14 @@ export async function GET(request) {
 
         console.log("Fetching fresh data...");
         const headlines = await fetchHeadlines();
+
+        if (headlines.length === 0) {
+            return Response.json(
+                { error: "No headlines could be fetched. All sources failed." },
+                { status: 503 }
+            );
+        }
+
         const clusters = await clusterWithGroq(headlines);
 
         cache.clusters = clusters;
