@@ -36,6 +36,14 @@ export default function Home() {
 
   const dark = darkMode;
 
+  const sentimentEmoji = (s) => s === "positive" ? "😊" : s === "negative" ? "😟" : "😐";
+  const sentimentBadgeClass = (s) =>
+    s === "positive"
+      ? "bg-green-500/20 text-green-400"
+      : s === "negative"
+        ? "bg-red-500/20 text-red-400"
+        : "bg-slate-500/20 text-slate-400";
+
   return (
     <main className={`min-h-screen transition-colors duration-500 ${dark ? "bg-[#0a0a0f] text-white" : "bg-[#f4f4f0] text-gray-900"}`}>
 
@@ -132,9 +140,10 @@ export default function Home() {
             <div className="lg:w-80 flex flex-col gap-3">
               {selected ? (
                 <React.Fragment>
-                  {/* Selected cluster detail */}
                   <div className={`rounded-2xl p-5 ${dark ? "bg-white/[0.05] border border-white/10" : "bg-white border border-black/10"}`}>
-                    <div className="flex items-start justify-between mb-3">
+
+                    {/* Title + close */}
+                    <div className="flex items-start justify-between mb-2">
                       <h3 className="text-base font-bold leading-snug">{selected.label}</h3>
                       <button
                         onClick={() => setSelected(null)}
@@ -143,9 +152,18 @@ export default function Home() {
                         ✕
                       </button>
                     </div>
+
+                    {/* Sentiment badge */}
+                    <div className="mb-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${sentimentBadgeClass(selected.sentiment)}`}>
+                        {sentimentEmoji(selected.sentiment)} {selected.sentiment} · {Math.round((selected.sentiment_score || 0.5) * 100)}%
+                      </span>
+                    </div>
+
                     <p className={`text-xs leading-relaxed mb-4 ${dark ? "text-white/50" : "text-black/50"}`}>
                       {selected.summary}
                     </p>
+
                     <div className={`text-xs font-semibold uppercase tracking-wider mb-2 ${dark ? "text-white/30" : "text-black/30"}`}>
                       Headlines
                     </div>
@@ -185,12 +203,15 @@ export default function Home() {
                         <button
                           onClick={() => setSelected(c)}
                           className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg text-xs transition-all ${selected?.cluster_id === c.cluster_id
-                            ? dark ? "bg-white/10 text-white" : "bg-black/10 text-black"
-                            : dark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-black/50 hover:bg-black/5 hover:text-black"
+                            ? (dark ? "bg-white/10 text-white" : "bg-black/10 text-black")
+                            : (dark ? "text-white/50 hover:bg-white/5 hover:text-white" : "text-black/50 hover:bg-black/5 hover:text-black")
                             }`}
                         >
                           <span className="font-medium">{c.label}</span>
-                          <span className={`${dark ? "text-white/20" : "text-black/20"}`}>{c.size}</span>
+                          <div className="flex items-center gap-2">
+                            <span>{sentimentEmoji(c.sentiment)}</span>
+                            <span className={`${dark ? "text-white/20" : "text-black/20"}`}>{c.size}</span>
+                          </div>
                         </button>
                       </li>
                     ))}

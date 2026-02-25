@@ -7,6 +7,12 @@ const COLORS = [
     "#BB8FCE", "#85C1E9"
 ];
 
+const SENTIMENT_COLORS = {
+    positive: "#22c55e",
+    negative: "#ef4444",
+    neutral: "#94a3b8",
+};
+
 export default function BubbleChart({ clusters, onSelect, selected, darkMode }) {
     const ref = useRef();
 
@@ -89,6 +95,14 @@ export default function BubbleChart({ clusters, onSelect, selected, darkMode }) 
                     .attr("opacity", selected?.cluster_id === d.cluster_id ? 1 : 0.82)
                     .attr("r", d.r);
             });
+
+        // Sentiment ring
+        node.append("circle")
+            .attr("r", d => d.r + 3)
+            .attr("fill", "none")
+            .attr("stroke", d => SENTIMENT_COLORS[d.sentiment] || SENTIMENT_COLORS.neutral)
+            .attr("stroke-width", 3)
+            .attr("opacity", d => 0.4 + (d.sentiment_score || 0.5) * 0.6);
 
         // Labels
         node.each(function (d) {
