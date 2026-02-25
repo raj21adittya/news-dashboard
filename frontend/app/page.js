@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import BubbleChart from "./components/BubbleChart";
+import ChatBubble from "./components/ChatBubble";
 
 const REFRESH_INTERVAL = 30 * 60 * 1000;
 
@@ -234,6 +235,7 @@ export default function Home() {
           </p>
         </div>
       </footer>
+      <ChatBubble clusters={clusters} darkMode={darkMode} />
     </main >
   );
 }
