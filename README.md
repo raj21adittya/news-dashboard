@@ -2,7 +2,7 @@
 
 > Real-time news clustering, sentiment analysis, and RAG-powered Q&A — built with Next.js, Groq, and deployed on Vercel.
 
-**Live Demo:** [news-dashboard-app-ruddy.vercel.app](https://news-dashboard-zeta.vercel.app/)
+**Live Demo:** [https://news-dashboard-zeta.vercel.app/](https://news-dashboard-zeta.vercel.app/)
 
 ---
 
